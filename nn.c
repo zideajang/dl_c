@@ -1,3 +1,5 @@
+#include<time.h>
+
 #define NN_IMPLEMENTATION
 
 #include<stdio.h>
@@ -10,7 +12,16 @@
 
 int main(int argc, char const *argv[])
 {
-    Mat m = mat_alloc(2,2);
-    mat_print(m);
+    srand(time(0));
+    Mat m1 = mat_alloc(2,2);
+    mat_fill(m1,1.0f);
+    mat_print(m1);
+    printf("---------------------");
+    Mat m2 = mat_alloc(2,2);
+    mat_fill(m2,2.0f);
+    mat_print(m2);
+    printf("---------------------");
+    mat_sum(m1,m2);
+    mat_print(m1);
     return 0;
 }

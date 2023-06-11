@@ -9,6 +9,8 @@ typedef struct
     float* data;
 } Tensor;
 
+// Tensor add(Tensor* )
+
 int main(int argc, char const *argv[])
 {   
     double a = 2;
