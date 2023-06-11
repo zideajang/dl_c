@@ -13,15 +13,8 @@
 int main(int argc, char const *argv[])
 {
     srand(time(0));
-    Mat m1 = mat_alloc(2,2);
-    mat_fill(m1,1.0f);
-    mat_print(m1);
-    printf("---------------------");
-    Mat m2 = mat_alloc(2,2);
-    mat_fill(m2,2.0f);
-    mat_print(m2);
-    printf("---------------------");
-    mat_sum(m1,m2);
-    mat_print(m1);
+
+    Mat w = mat_alloc(2,2);
+
     return 0;
 }

@@ -36,6 +36,7 @@ bool mat_equal(Mat m1,Mat m2){
 
 // }
 
+// AVX2
 
 
 
@@ -47,6 +48,28 @@ bool mat_equal(Mat m1,Mat m2){
 int main(int argc, char const *argv[])
 {
 
+    
+
+Mat x = mat_alloc(1,2);
+
+Mat w1 = mat_alloc(2,2);
+Mat b1 = mat_alloc(1,2);
+Mat a1 = mat_alloc(1,2);
+
+mat_rand(w1,0,1);
+mat_rand(b1,0,1);
+mat_rand(a1,0,1);
+
+MAT_AT(x,0,0) = 0;
+MAT_AT(x,0,1) = 1;
+
+mat_dot(a1,x,w1);
+
+MAT_PRINT(x);
+MAT_PRINT(w1);
+MAT_PRINT(a1);
+
+#ifdef DOT_TEST
 Mat m1 = mat_alloc(2,3);
 MAT_AT(m1,0,0) = 1; 
 MAT_AT(m1,0,1) = 0; 
@@ -66,8 +89,8 @@ MAT_AT(m2,2,1) = 1;
 Mat res = mat_alloc(2,2);
 
 mat_dot(res,m1,m2);
-mat_print(res);
-
+MAT_PRINT(res);
+#endif
 #ifdef SUM_TEST
     Mat m1 = mat_alloc(2,3);
     mat_fill(m1,1.0f);
