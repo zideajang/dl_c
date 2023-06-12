@@ -181,3 +181,99 @@ float cost(Xor m, Mat ti, Mat to)
 n 是样本的数量，然后循环每一个样本也就是从 `ti` 每一行都是样本，然后通过 `mat_copy` 函数将样本值赋值给 `m.a0` 计算前向传播，这里 `q` 模型输出向量的维度，我们计算每一个分量的差值求和后，
 
 最后将 c 除以 n 来计算样本 loss 的均值。
+
+```c
+float td[] = {
+    0,0,0,
+    0,1,1,
+    1,0,1,
+    1,1,0,
+};
+```
+在 `td` 每一行都是样本，每一行前两列为特征，后一列为 ground truth
+
+```c
+typedef struct 
+{
+    //Mat的 shape (rows,cols)
+    size_t rows;
+    size_t cols;
+    size_t stride;
+    float *data;
+} Mat;
+```
+数据依然是连续地放置在内存上，那么我们为什么要 stride ，也就是设置应该如何地读取数据。
+
+```c
+Mat mat_alloc(size_t rows, size_t cols){
+    Mat m;
+    m.rows = rows;
+    m.cols = cols;
+    m.stride = cols;
+    m.data = NN_MALLOC(sizeof(*m.data)*rows*cols);
+    NN_ASSERT(m.data != NULL);
+    return m;
+}
+```
+
+```c
+Mat mat_row(Mat m, size_t row)
+{
+    return (Mat){
+        .rows=1,
+        .cols=m.cols,
+        .stride = m.stride,
+        .data = &MAT_AT(m,row,0),
+    };
+}
+```
+实际上对于一行数据 `stride` 是没有起任何作用的
+
+```c
+#define MAT_AT(m,i,j) (m).data[(i)*(m).stride + (j)]
+```
+
+```c
+size_t stride = 3;
+size_t n = sizeof(td)/sizeof(td[0])/3;
+Mat ti = {
+    .rows = n,
+    .cols = 2,
+    .stride = stride,
+    .data = td
+};
+```
+
+```c
+size_t stride = 3;
+size_t n = sizeof(td)/sizeof(td[0])/3;
+    Mat ti = {
+        .rows = n,
+        .cols = 2,
+        .stride = stride,
+        .data = td
+    };
+
+    Mat to = {
+        .rows = n,
+        .cols = 1,
+        .stride = stride,
+        .data = td + 2,
+    };
+
+```
+
+```c
+[ ti
+    0.000000    0.000000
+    0.000000    1.000000
+    1.000000    0.000000
+    1.000000    1.000000
+]
+[ to
+    0.000000
+    1.000000
+    1.000000
+    0.000000
+]
+```

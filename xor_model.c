@@ -67,9 +67,40 @@ float cost(Xor m, Mat ti, Mat to)
     
 }
 
+
+float td[] = {
+    0,0,0,
+    0,1,1,
+    1,0,1,
+    1,1,0,
+};
+
 int main(int argc, char const *argv[])
 {
     srand(time(0));
+
+    // 计算样本数量
+    size_t stride = 3;
+    size_t n = sizeof(td)/sizeof(td[0])/3;
+    Mat ti = {
+        .rows = n,
+        .cols = 2,
+        .stride = stride,
+        .data = td
+    };
+
+    Mat to = {
+        .rows = n,
+        .cols = 1,
+        .stride = stride,
+        .data = td + 2,
+    };
+
+    MAT_PRINT(ti);
+    MAT_PRINT(to);
+
+    return 0;
+
     Xor m;
     // 输入层{x1,x2}
 
@@ -91,6 +122,8 @@ int main(int argc, char const *argv[])
 
     // float y = forward(m,0,1); 
     // printf("y = %f(predict) ", y);
+
+    printf("cost = %f\n",cost(m,ti,to));
 
     for (size_t i = 0; i < 2; i++)
     {

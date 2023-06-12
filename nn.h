@@ -21,10 +21,11 @@ typedef struct
     //Mat的 shape (rows,cols)
     size_t rows;
     size_t cols;
+    size_t stride;
     float *data;
 } Mat;
 
-#define MAT_AT(m,i,j) (m).data[(i)*(m).cols + (j)]
+#define MAT_AT(m,i,j) (m).data[(i)*(m).stride + (j)]
 #define MAT_PRINT(m) mat_print(m,#m)
 // 生成随机数
 float rand_float();
@@ -34,6 +35,7 @@ float sigmoidf(float);
 Mat mat_alloc(size_t rows, size_t cols);
 void mat_rand(Mat m, float low,float high);
 Mat mat_row(Mat m,size_t row);
+// Mat mat_sub(Mat m, size_t )
 void mat_copy(Mat dst, Mat src);
 void mat_fill(Mat m,float b);
 void mat_dot(Mat dst, Mat a, Mat b); // dst = b@c
@@ -61,6 +63,7 @@ Mat mat_alloc(size_t rows, size_t cols){
     Mat m;
     m.rows = rows;
     m.cols = cols;
+    m.stride = cols;
     m.data = NN_MALLOC(sizeof(*m.data)*rows*cols);
     NN_ASSERT(m.data != NULL);
     return m;
@@ -125,12 +128,10 @@ void mat_rand(Mat m,float low, float high)
 
 Mat mat_row(Mat m, size_t row)
 {
-    // MAT_AT 返回 Mat某一个元素
-    // 当我们返回的是某一个行第一个元素地址
-    // 也就是拿到了那一行数据
     return (Mat){
         .rows=1,
         .cols=m.cols,
+        .stride = m.stride,
         .data = &MAT_AT(m,row,0),
     };
 }
