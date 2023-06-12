@@ -277,3 +277,18 @@ size_t n = sizeof(td)/sizeof(td[0])/3;
     0.000000
 ]
 ```
+
+## 定义神经网络
+在神经网络中每一层都是都是
+- ws (weight)权重
+- bs (bias)偏置
+- as (activate)激活函数也叫做非线性变换
+```c
+typedef struct 
+{
+    size_t count;
+    Mat *ws;
+    Mat *bs;
+    Mat *as;//The amount of activations is count + 1
+} NN;
+```

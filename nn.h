@@ -26,6 +26,7 @@ typedef struct
 } Mat;
 
 #define MAT_AT(m,i,j) (m).data[(i)*(m).stride + (j)]
+#define ARRAY_LEN(xs) sizeof((xs))/sizeof((xs)[0])
 #define MAT_PRINT(m) mat_print(m,#m)
 // 生成随机数
 float rand_float();
@@ -42,6 +43,18 @@ void mat_dot(Mat dst, Mat a, Mat b); // dst = b@c
 void mat_sum(Mat dst, Mat b); // dst = dst + b
 void mat_sig(Mat m);
 void mat_print(Mat m,const char* name);
+
+typedef struct 
+{
+    size_t count;
+    Mat *ws;
+    Mat *bs;
+    Mat *as;//The amount of activations is count + 1
+} NN;
+
+NN nn_alloc(size_t* arch,size_t arch_count);
+void nn_print(NN nn,const char *name);
+#define NN_PRINT(nn) nn_print(nn,#nn)
 #endif //NN_H_
 
 // stb howtodo 库写的规范，下面是对头文件实现的部分
@@ -193,6 +206,43 @@ void mat_fill(Mat m,float b)
             MAT_AT(m,i,j) = b;
         }
     }
+}
+
+NN nn_alloc(size_t* arch,size_t arch_count)
+{   
+    NN_ASSERT(arch_count > 0);
+    NN nn;
+    nn.count = arch_count - 1;
+    // nn.ws 指向存储类型 Mat 数组，也就是每一个元素是 Mat 类型
+    nn.ws = NN_MALLOC(sizeof(*nn.ws)*nn.count);
+    NN_ASSERT(nn.ws != NULL);
+    nn.bs = NN_MALLOC(sizeof(*nn.bs)*nn.count);
+    NN_ASSERT(nn.bs != NULL);
+    nn.as = NN_MALLOC(sizeof(*nn.as)*(nn.count + 1));
+    NN_ASSERT(nn.as != NULL);
+
+    nn.as[0] = mat_alloc(1,arch[0]);
+    for (size_t i = 1; i < arch_count; i++)
+    {
+        nn.ws[i-1] = mat_alloc(nn.as[i-1].cols,arch[i]);
+        nn.bs[i-1] = mat_alloc(1,arch[i]);
+        nn.as[i]  = mat_alloc(1,arch[i]);
+    }
+    
+    return nn;
+}
+
+void nn_print(NN nn, const char* name)
+{
+    printf("%s = [\n",name);
+    for (size_t i = 0; i < nn.count; i++)
+    {
+        MAT_PRINT(nn.ws[i]);
+        MAT_PRINT(nn.bs[i]);
+    }
+
+    printf("]\n");
+    
 }
 
 #endif //NN_IMPLEMENTATION

@@ -1,6 +1,8 @@
 #include<time.h>
-
+#include<math.h>
 #define NN_IMPLEMENTATION
+
+#include<stdio.h>
 
 #include<stdio.h>
 
@@ -10,11 +12,22 @@
 
 #include "nn.h"
 
+
+
+
+size_t arch[] = {2,2,1};
+// NN nn = nn_alloc(arch, ARRAY_LEN(arch));
+
+
+
+
+
+
 int main(int argc, char const *argv[])
 {
     srand(time(0));
 
-    Mat w = mat_alloc(2,2);
-
+    NN nn = nn_alloc(arch,ARRAY_LEN(arch));
+   
     return 0;
 }
