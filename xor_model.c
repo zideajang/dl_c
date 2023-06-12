@@ -21,6 +21,25 @@ typedef struct
     
 } Xor;
 
+Xor xor_alloc(void)
+{    
+    Xor m;
+    // 输入层{x1,x2}
+
+    m.a0 = mat_alloc(1,2);
+
+    m.w1 = mat_alloc(2,2);
+    m.b1 = mat_alloc(1,2);
+    m.a1 = mat_alloc(1,2);
+    // 输出层为 y
+    m.w2 = mat_alloc(2,1);
+    m.b2 = mat_alloc(1,1);
+    m.a2 = mat_alloc(1,1);
+
+    return m;
+
+}
+
 // 前向传播(也是推理过程)
 float forward(Xor m){
 
@@ -67,6 +86,96 @@ float cost(Xor m, Mat ti, Mat to)
     
 }
 
+void finite_diff(Xor m, Xor g, float eps,Mat ti,Mat to)
+{
+    float saved;
+
+    float c = cost(m,ti,to);
+
+    for (size_t i = 0; i < m.w1.rows; i++)
+    {
+        for (size_t j = 0; j < m.w1.cols; j++)
+        {
+            saved = MAT_AT(m.w1,i,j);
+            MAT_AT(m.w1,i,j) += eps;
+            MAT_AT(g.w1,i,j) = (cost(m,ti,to) - c )/eps;
+            MAT_AT(m.w1,i,j) = saved;
+        }
+        
+    }
+    for (size_t i = 0; i < m.b1.rows; i++)
+    {
+        for (size_t j = 0; j < m.b1.cols; j++)
+        {
+            saved = MAT_AT(m.b1,i,j);
+            MAT_AT(m.b1,i,j) += eps;
+            MAT_AT(g.b1,i,j) = (cost(m,ti,to) - c )/eps;
+            MAT_AT(m.b1,i,j) = saved;
+        }
+        
+    }
+    for (size_t i = 0; i < m.w2.rows; i++)
+    {
+        for (size_t j = 0; j < m.w2.cols; j++)
+        {
+            saved = MAT_AT(m.w2,i,j);
+            MAT_AT(m.w2,i,j) += eps;
+            MAT_AT(g.w2,i,j) = (cost(m,ti,to) - c )/eps;
+            MAT_AT(m.w2,i,j) = saved;
+        }
+        
+    }
+
+    for (size_t i = 0; i < m.b2.rows; i++)
+    {
+        for (size_t j = 0; j < m.b2.cols; j++)
+        {
+            saved = MAT_AT(m.b2,i,j);
+            MAT_AT(m.b2,i,j) += eps;
+            MAT_AT(g.b2,i,j) = (cost(m,ti,to) - c )/eps;
+            MAT_AT(m.b2,i,j) = saved;
+        }
+        
+    }
+    
+}
+
+void xor_learn(Xor m, Xor g, float rate)
+{
+    for (size_t i = 0; i < m.w1.rows; i++)
+    {
+        for (size_t j = 0; j < m.w1.cols; j++)
+        {
+            MAT_AT(m.w1,i,j) -= rate* MAT_AT(g.w1,i,j);
+        }
+        
+    }
+    for (size_t i = 0; i < m.b1.rows; i++)
+    {
+        for (size_t j = 0; j < m.b1.cols; j++)
+        {
+            MAT_AT(m.b1,i,j) -= rate* MAT_AT(g.b1,i,j);
+        }
+        
+    }
+    for (size_t i = 0; i < m.w2.rows; i++)
+    {
+        for (size_t j = 0; j < m.w2.cols; j++)
+        {
+            MAT_AT(m.w2,i,j) -= rate* MAT_AT(g.w2,i,j);
+        }
+        
+    }
+
+    for (size_t i = 0; i < m.b2.rows; i++)
+    {
+        for (size_t j = 0; j < m.b2.cols; j++)
+        {
+            MAT_AT(m.b2,i,j) -= rate* MAT_AT(g.b2,i,j);
+        }
+        
+    }
+}
 
 float td[] = {
     0,0,0,
@@ -74,6 +183,7 @@ float td[] = {
     1,0,1,
     1,1,0,
 };
+
 
 int main(int argc, char const *argv[])
 {
@@ -96,23 +206,11 @@ int main(int argc, char const *argv[])
         .data = td + 2,
     };
 
-    MAT_PRINT(ti);
-    MAT_PRINT(to);
+    // MAT_PRINT(ti);
 
-    return 0;
-
-    Xor m;
-    // 输入层{x1,x2}
-
-    m.a0 = mat_alloc(1,2);
-
-    m.w1 = mat_alloc(2,2);
-    m.b1 = mat_alloc(1,2);
-    m.a1 = mat_alloc(1,2);
-    // 输出层为 y
-    m.w2 = mat_alloc(2,1);
-    m.b2 = mat_alloc(1,1);
-    m.a2 = mat_alloc(1,1);
+    Xor m = xor_alloc();
+    Xor g = xor_alloc();
+    // MAT_PRINT(m.w1);
     
     mat_rand(m.w1,0,1);
     mat_rand(m.b1,0,1);
@@ -120,11 +218,25 @@ int main(int argc, char const *argv[])
     mat_rand(m.w2,0,1);
     mat_rand(m.b2,0,1);
 
+    float eps =1e-1;
+    float rate =1e-1;
+    printf("cost = %f\n",cost(m,ti,to));
+    for (size_t i = 0; i < 10*1000; i++)
+    {
+        finite_diff(m,g,eps,ti,to);
+        xor_learn(m,g,rate);
+        printf("%zu: cost = %f\n",i,cost(m,ti,to));
+        /* code */
+    }
+    
+
+
     // float y = forward(m,0,1); 
     // printf("y = %f(predict) ", y);
 
-    printf("cost = %f\n",cost(m,ti,to));
+    
 
+#if 0
     for (size_t i = 0; i < 2; i++)
     {
         for (size_t j = 0; j < 2; j++)
@@ -139,7 +251,7 @@ int main(int argc, char const *argv[])
         
     }
     
-
+#endif
    
 
     return 0;
