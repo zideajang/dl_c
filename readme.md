@@ -121,3 +121,63 @@ int main(int argc, char const *argv[])
 }
 
 ```
+
+定义结构体用来描述模型
+
+```c
+typedef struct 
+{
+    Mat a0;
+    Mat w1,b1,a1;
+    Mat w2,b2,a2;
+    
+} Xor;
+```
+
+结构体中每一行表示神经网络的一层，
+`Mat a0` 表示输入层，这里每层输出都是用 `a` 来表示，`a0` 表示输入
+`w1,b1,a1` 表示隐含层的参数，以及输出 `a1` 这里是对经过线性变换的进行一次 `sigmoid` 的非线性变换
+
+
+#### 前向传播
+```c
+
+```
+
+#### 计算成本函数
+```c
+
+float cost(Xor m, Mat ti, Mat to)
+{
+    NN_ASSERT(ti.rows == to.rows);
+    NN_ASSERT(to.cols == m.a2.cols);
+    size_t n = ti.rows;
+    
+    float c = 0;
+    for (size_t i = 0; i < n; i++)
+    {
+        Mat x = mat_row(ti,i);
+        Mat y = mat_row(to,i);
+        
+        mat_copy(m.a0,x);
+        forward(m);
+
+        size_t q = to.cols;
+        for (size_t j = 0; j < q; j++)
+        {
+            float d = MAT_AT(m.a2,0,j) - MAT_AT(y,0,j);
+            c += d*d;
+        }
+       
+    }
+
+    return c/n;
+}
+```
+- `ti` 表示数据输入样本也就是 x 样本特征
+- `to` 表示数据的 ground truth 也就是样本标准答案
+首先要做的是校验输入样本数量和 ground truth 是否相等，然后还要需要预测向量维度和 ground truth 样本维度相同
+
+n 是样本的数量，然后循环每一个样本也就是从 `ti` 每一行都是样本，然后通过 `mat_copy` 函数将样本值赋值给 `m.a0` 计算前向传播，这里 `q` 模型输出向量的维度，我们计算每一个分量的差值求和后，
+
+最后将 c 除以 n 来计算样本 loss 的均值。

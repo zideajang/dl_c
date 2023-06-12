@@ -33,6 +33,8 @@ float sigmoidf(float);
 // 分配内存空间
 Mat mat_alloc(size_t rows, size_t cols);
 void mat_rand(Mat m, float low,float high);
+Mat mat_row(Mat m,size_t row);
+void mat_copy(Mat dst, Mat src);
 void mat_fill(Mat m,float b);
 void mat_dot(Mat dst, Mat a, Mat b); // dst = b@c
 void mat_sum(Mat dst, Mat b); // dst = dst + b
@@ -119,6 +121,36 @@ void mat_rand(Mat m,float low, float high)
         }
 
     }
+}
+
+Mat mat_row(Mat m, size_t row)
+{
+    // MAT_AT 返回 Mat某一个元素
+    // 当我们返回的是某一个行第一个元素地址
+    // 也就是拿到了那一行数据
+    return (Mat){
+        .rows=1,
+        .cols=m.cols,
+        .data = &MAT_AT(m,row,0),
+    };
+}
+
+void mat_copy(Mat dst, Mat src){
+    // 首先需要校验 dst 和 src 是否
+    // 具有相同 shape，只有具有相同 shape
+    // 才能进行 copy
+    NN_ASSERT(dst.rows == src.rows);
+    NN_ASSERT(dst.cols == src.cols);
+
+    for (size_t i = 0; i < dst.rows; i++)
+    {
+        for (size_t j = 0; j < dst.cols; j++)
+        {
+            MAT_AT(dst,i,j) = MAT_AT(src,i,j);
+        }
+        
+    }
+    
 }
 
 void mat_sig(Mat m)
