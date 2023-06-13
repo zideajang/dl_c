@@ -20,9 +20,6 @@ size_t arch[] = {2,2,1};
 
 
 
-
-
-
 int main(int argc, char const *argv[])
 {
     srand(time(0));

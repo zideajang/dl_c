@@ -188,21 +188,19 @@ float td[] = {
 int main(int argc, char const *argv[])
 {
     srand(time(0));
+    // 神经网络结构 2 输入层 2 隐藏层 1 输出层
     size_t arch[] = {2,2,1};
-    NN xor_nn = nn_alloc(arch,ARRAY_LEN(arch));
-    NN_PRINT(xor_nn);
 
-    return 0;
-    // 计算样本数量
     size_t stride = 3;
     size_t n = sizeof(td)/sizeof(td[0])/3;
+    // sample(input)
     Mat ti = {
         .rows = n,
         .cols = 2,
         .stride = stride,
         .data = td
     };
-
+    // groud truth
     Mat to = {
         .rows = n,
         .cols = 1,
@@ -210,29 +208,43 @@ int main(int argc, char const *argv[])
         .data = td + 2,
     };
 
-    // MAT_PRINT(ti);
-
-    Xor m = xor_alloc();
-    Xor g = xor_alloc();
-    // MAT_PRINT(m.w1);
     
-    mat_rand(m.w1,0,1);
-    mat_rand(m.b1,0,1);
-
-    mat_rand(m.w2,0,1);
-    mat_rand(m.b2,0,1);
-
     float eps =1e-1;
+    // 学习率
     float rate =1e-1;
-    printf("cost = %f\n",cost(m,ti,to));
+
+    NN nn = nn_alloc(arch,ARRAY_LEN(arch));
+    NN g = nn_alloc(arch,ARRAY_LEN(arch));
+
+    nn_rand(nn,0,1);
+    // Xor 
+    // MAT_PRINT(mat_row(ti,1));
+    Mat row = mat_row(ti,3);
+    // MAT_PRINT(row);
+    mat_copy(NN_INPUT(nn),row);
+
+    // nn_forward(nn);
+    printf("cost: %f",nn_cost(nn,ti,to));
     for (size_t i = 0; i < 10*1000; i++)
     {
-        finite_diff(m,g,eps,ti,to);
-        xor_learn(m,g,rate);
-        printf("%zu: cost = %f\n",i,cost(m,ti,to));
+        nn_finite_diff(nn,g,eps,ti,to);
+        nn_learn(nn,g,rate);
+        // printf("%zu: cost = %f\n",i,nn_cost(nn,ti,to));
         /* code */
     }
     
+    // MAT_PRINT(NN_OUTPUT(nn));
+    // NN_PRINT(nn);
+
+   
+    // 计算样本数量
+    
+
+    // MAT_PRINT(ti);
+
+
+    
+ 
 
 
     // float y = forward(m,0,1); 
@@ -240,16 +252,17 @@ int main(int argc, char const *argv[])
 
     
 
-#if 0
+#if 1
+    printf("inference\n");
     for (size_t i = 0; i < 2; i++)
     {
         for (size_t j = 0; j < 2; j++)
         {
             // [(0,0),(0,1)] = [i,j]
-            MAT_AT(m.a0,0,0) = i;
-            MAT_AT(m.a0,0,1) = j;
-            forward(m);
-            float y = *m.a2.data;
+            MAT_AT(NN_INPUT(nn),0,0) = i;
+            MAT_AT(NN_INPUT(nn),0,1) = j;
+            nn_forward(nn);
+            float y = MAT_AT(NN_OUTPUT(nn),0,0);
             printf("%zu ^ %zu = %f\n",i,j,y);
         }
         

@@ -292,3 +292,82 @@ typedef struct
     Mat *as;//The amount of activations is count + 1
 } NN;
 ```
+
+### 前向传播
+```c
+void nn_forward(NN nn){
+    for (size_t i = 0; i < nn.count; i++)
+    {
+        // output[i] = input[i] @ weights
+        // output[i] = output[i] + bias
+        // output[i] = sigmoid(output[i])
+        mat_dot(nn.as[i + 1],nn.as[i],nn.ws[i]);
+        mat_sum(nn.as[i + 1],nn.bs[i]);
+        mat_sig(nn.as[i+1]);
+    }
+    
+}
+
+```
+
+### 成本函数
+```c
+float nn_cost(NN nn, Mat ti, Mat to)
+{
+    NN_ASSERT(ti.rows == to.rows);
+    NN_ASSERT(to.cols == NN_OUTPUT(nn).cols);
+    size_t n = ti.rows;
+    float c = 0;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        // X 和 ground truth
+        Mat x = mat_row(ti,i);
+        Mat y = mat_row(to,i);
+
+        mat_copy(NN_INPUT(nn),x);
+        nn_forward(nn);
+        size_t q = to.cols;
+        for (size_t j = 0; j < q; j++)
+        {
+            float d = MAT_AT(NN_OUTPUT(nn),0,j) - MAT_AT(y,0,j);
+            c += d*d;
+        }
+        
+    }
+    return c/n;
+}
+
+```
+### 计算梯度
+计算梯度，暂时并没有实现反向传播，也就是梯度回传,只是简单根据调整后 cost 变化率做梯度来更新参数
+```c
+for (size_t k = 0; k < nn.ws[i].cols; k++)
+{
+    // 暂时将 weight 缓存起来
+    saved = MAT_AT(nn.ws[i],j,k);
+    // 调整(更新)参数
+    MAT_AT(nn.ws[i],j,k) += eps;
+    // 计算更新参数的梯度，也就是参数变得对 cost 影响程度
+    MAT_AT(g.ws[i],j,k) = (nn_cost(nn,ti,to) - c)/eps;
+    // 
+    MAT_AT(nn.ws[i],j,k) = saved;
+}
+```
+- 首先暂时将 weight 缓存起来
+- 接下来稍微调整参数(weight,bias)
+- 然后计算调整参数后 cost 变化大小比上调整大小来计算参数梯度
+
+
+### 实现训练函数
+
+```c
+float nn_learn(NN nn, NN g,float rate){
+
+    ...
+    MAT_AT(nn.ws[i],j,k) -= rate* MAT_AT(g.ws[i],j,k);
+    ...
+}
+```
+
+可以参考这个文件 xor_model_nn.c
