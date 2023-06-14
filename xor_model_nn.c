@@ -7,11 +7,18 @@
 #include "nn.h"
 
 // 数据
-float td[] = {
+float td_xor[] = {
     0,0,0,
     0,1,1,
     1,0,1,
     1,1,0,
+};
+
+float td_or[] = {
+    0,0,0,
+    0,1,1,
+    1,0,1,
+    1,1,1,
 };
 
 
@@ -22,6 +29,9 @@ int main(int argc, char const *argv[])
 
     // 将数据拆分 x(sample) 和 y(ground truth)
     size_t stride = 3;
+
+    float* td = td_or;
+
     size_t n = sizeof(td)/sizeof(td[0])/3;
     // sample(input)
     Mat ti = {
