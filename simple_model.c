@@ -57,7 +57,7 @@ int main(int argc, char const *argv[])
     float rate = 1e-1;
     
     
-    for (size_t i = 0; i < 100; i++)
+    for (size_t i = 0; i < 10; i++)
     {
     #if 0    
         float eps = 1e-1;
