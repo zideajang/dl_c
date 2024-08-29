@@ -1,6 +1,6 @@
-#include "../include/layer.h"
+// #include "../include/layer.h"
+#include "../include/utils.h"
 #include "../include/mat.h"
-
 
 Region region_alloc_alloc(size_t capacity_bytes)
 {
@@ -18,9 +18,8 @@ Mat mat_alloc(size_t rows,size_t cols)
     Mat m;
     m.rows = rows;
     m.cols = cols;
-    m.stride = cols;
-    m.data = NN_MALLOC(sizeof(*m.elements)*rows*cols);
-    NN_ASSERT(m.data != NULL);
+    m.elements = NN_MALLOC(sizeof(*m.elements)*rows*cols);
+    NN_ASSERT(m.elements != NULL);
     return m;
 }
 
@@ -50,15 +49,39 @@ void mat_randn(Mat m,float mu, float sigma)
     
 }
 
+void mat_print(Mat m,const char* name,size_t padding){
+    printf("%*s%s = [\n",(int)padding,"",name);
+    for (size_t i = 0; i < m.rows; i++)
+    {   
+        printf("%*s   ",(int)padding,"");
+        for (size_t j = 0; j < m.cols; j++)
+        {
+            printf("%f ",MAT_AT(m,i,j));
+        }
+        printf("\n");
+    }
+
+    printf("%*s]\n",(int)padding,"");
+    
+}
+
 Mat mat_row(Mat m,size_t row)
 {
     return (Mat){
         .rows=1,
         .cols=m.cols,
-        .stride=m.stride,
-        .data=&MAT_AT(m,row,0),
+        .elements=&MAT_AT(m,row,0),
     };
 
+}
+
+Mat row_as_mat(Row row)
+{
+    return (Mat) {
+        .rows = 1,
+        .cols = row.cols,
+        .elements = row.elements,
+    };
 }
 
 void mat_copy(Mat dst, Mat src)

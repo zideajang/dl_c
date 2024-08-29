@@ -5,7 +5,10 @@ float rand_float(void){
     
     return (float)rand()/(float)RAND_MAX;
 }
-
+float sigmoidf(float x)
+{
+    return 1.0f /(1.0f + expf(-x));
+}
 
 float randn_float (float mu, float sigma)
 {
@@ -85,18 +88,3 @@ float dcost(float w,float train_data[][2] ,int rows)
     
 }
 
-void mat_print(Mat m,const char* name,size_t padding){
-    printf("%*s%s = [\n",(int)padding,"",name);
-    for (size_t i = 0; i < m.rows; i++)
-    {   
-        printf("%*s   ",(int)padding,"");
-        for (size_t j = 0; j < m.cols; j++)
-        {
-            printf("%f ",MAT_AT(m,i,j));
-        }
-        printf("\n");
-    }
-
-    printf("%*s]\n",(int)padding,"");
-    
-}

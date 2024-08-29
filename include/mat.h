@@ -54,10 +54,12 @@ Mat row_as_mat(Row row);
 Mat mat_alloc(size_t rows,size_t cols);
 void mat_rand(Mat m,float low,float high); 
 void mat_randn(Mat m,float mu, float sigma); 
+void mat_print(Mat m,const char* name,size_t padding);
+#define MAT_PRINT(m) mat_print(m, #m, 0)
 void mat_fill(Mat m, float b);
 // void mat_nrand(Mat m);
 // 矩阵运算
-Row mat_row(Mat m,size_t row);
+Mat mat_row(Mat m,size_t row);
 
 void mat_dot(Mat dst, Mat a, Mat b);
 void mat_sum(Mat dst, Mat b);

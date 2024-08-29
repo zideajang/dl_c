@@ -3,7 +3,7 @@ CFLAGS = -I./include
 CFLAGS += -lm 
 # CFLAGS += -Wall
 # CFLAGS += -Wextra
-SRC = ./src/main.c ./src/dataloader.c ./src/utils.c ./src/examples.c ./src/mat.c ./src/perceptron.c ./src/nn.c ./src/layer.c
+SRC = ./src/main.c ./src/dataloader.c ./src/utils.c ./src/examples.c ./src/mat.c ./src/perceptron.c ./src/nn.c  
 
 OBJ = $(SRC:.c=.o)
 TARGET = prog
