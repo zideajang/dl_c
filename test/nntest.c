@@ -58,6 +58,15 @@ int main(int argc, char const *argv[])
             nn_learn(nn,g,rate);
             printf("cost = %f\n",nn_cost(nn,ti,to));
         }
+
+        for (size_t i = 0; i < 2; ++i) {
+            for (size_t j = 0; j < 2; ++j) {
+                MAT_AT(NN_INPUT(nn), 0, 0) = i;
+                MAT_AT(NN_INPUT(nn), 0, 1) = j;
+                nn_forward(nn);
+                printf("%zu ^ %zu = %f\n",i,j,MAT_AT(NN_OUTPUT(nn),0,0));
+            }
+        }
         
         // MAT_PRINT(mat_row(ti,1));
         // mat_copy(NN_INPUT(nn),mat_row(ti,1));

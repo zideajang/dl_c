@@ -18,10 +18,18 @@ $(TARGET): $(OBJ)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+RM=del
+TEST_DIR := .\\test
+TEST_OBJ_FILES := $(SRC_DIR)/nntest.o
+# SLASH := $(shell test -d / && echo / || echo \\)
+# $(RM) -f $(OBJ) $(TARGET)
 clean:
-	rm -f $(OBJ) $(TARGET)
-	rm -f ./test/mattest.o
-	rm -f ./test/nntest.o
+	@echo $(RM)
+	@for file in $(OBJ_FILES); do \
+        if [ -f "$(file)" ]; then \
+            $(RM) -f "$(file)"; \
+        fi; \
+    done
 
 # test/mattest.o:mattest.c
 # 	$(CC) $(CFLAGS) -c ./test/mattest.c
